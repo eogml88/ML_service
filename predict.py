@@ -5,7 +5,7 @@ import yaml
 from model import Classifier2, AgeClassifier
 from PIL import Image
 
-@st.cache
+@st.cache_data
 def load_model() -> list:
     with open("config.yaml") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
@@ -23,11 +23,11 @@ def load_model() -> list:
     return [model_mask, model_gender, model_age]
 
 
-def get_prediction(model:list, image: Image) -> list:
+def get_prediction(model_list:list, image: Image) -> list:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     image = transform_image(image).to(device)
-    mask_pred = model[0](image)
-    gender_pred = model[1](image)
-    age_pred = model[2](image)
-    pred = torch.max(mask_pred, 1)[1] * 6 + torch.max(gender_pred, 1)[1] * 3 + torch.bucketize(age_pred, torch.Tensor([30,60]).cuda(), right=True).squeeze()
+    mask_pred = model_list[0](image.unsqueeze(0))
+    gender_pred = model_list[1](image.unsqueeze(0))
+    age_pred = model_list[2](image.unsqueeze(0))
+    pred = torch.max(mask_pred, 1)[1] * 6 + torch.max(gender_pred, 1)[1] * 3 + torch.bucketize(age_pred, torch.Tensor([30,60]), right=True).squeeze()
     return [image, pred]

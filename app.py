@@ -30,13 +30,16 @@ def main():
     model_list[2].eval()
 
     uploaded_file = st.file_uploader("Choose an image", type=["jpg", "jpeg","png"])
+    print('type(uploaded_file):', type(uploaded_file))
 
     if uploaded_file:
         image_bytes = uploaded_file.getvalue()
+        print('type(image_bytes):', type(image_bytes))
         image = Image.open(io.BytesIO(image_bytes))
+        print('type(image):', type(image))
 
         st.image(image, caption='Uploaded image')
-        _, y_hat = get_prediction(model_list, image_bytes)
+        _, y_hat = get_prediction(model_list, image)
         label = config['classes'][y_hat.item()]
         st.write(f'result: {label}')
 
